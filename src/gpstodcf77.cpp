@@ -35,7 +35,7 @@ int ArrayImpulses[MaxPulseNumber];
 int ContaImpulsi = 0;
 int UscitaDcfOn = 0;
 int SubSecond = 0;
-int Ore,Minuti,Secondi,Giorno,Mese,Anno, DayOfW;
+int Hour,Minute,Seconds,Day,Month,Year, DayOfW;
 
 int notCalced = 0;
 
@@ -50,7 +50,7 @@ Timezone usEastern(usEDT, usEST);
 
 void CalculateArray();
 void DcfOut();
-void LeggiEdecodificaTempo();
+void LogAndEncodeTime();
 
 int Bin2Bcd(int dato) {
   int msb,lsb;
@@ -114,7 +114,7 @@ if(isValid) {
   age = gps.location.age();
   if(age > 1000) return; // only work with fresh data.
     if((UscitaDcfOn == 0 && ContaImpulsi == 0) || (ContaImpulsi == 59 && notCalced))
-      LeggiEdecodificaTempo();
+        LogAndEncodeTime();
   }
 }
 
@@ -135,7 +135,7 @@ time_t makeTime(int hr,int min,int sec,int dy, int mnth, int yr){
   return makeTime(tm);
 }
 
-void LeggiEdecodificaTempo() {
+void LogAndEncodeTime() {
 
       notCalced = 0;
 
@@ -158,15 +158,15 @@ void LeggiEdecodificaTempo() {
     localTime = usEastern.toLocal(currentTime);
 
     DayOfW = weekday(localTime);
-    Giorno = day(localTime);
-    Mese = month(localTime);
-    Anno = year(localTime);    
+    Day = day(localTime);
+    Month = month(localTime);
+    Year = year(localTime);
     Serial.print("Tempo Locale ");       // UTC is the time at Greenwich Meridian (GMT)
-    Serial.print(Giorno);
+    Serial.print(Day);
     Serial.print('/');
-    Serial.print(Mese);
+    Serial.print(Month);
     Serial.print('/');
-    Serial.print(Anno);
+    Serial.print(Year);
     Serial.print(' ');
   
     Dls = usEastern.locIsDST(localTime);
@@ -178,15 +178,15 @@ void LeggiEdecodificaTempo() {
 
     //now that we know the dls state, we can calculate the time too
     // print the hour, minute and second:
-    Ore = hour(localTime);
-    Minuti = minute(localTime);
-    Secondi = second(localTime);
+    Hour = hour(localTime);
+    Minute = minute(localTime);
+    Seconds = second(localTime);
     
-    Serial.print(Ore); // print the hour
+    Serial.print(Hour); // print the hour
     Serial.print(':');
-    Serial.print(Minuti); // print the minute
+    Serial.print(Minute); // print the minute
     Serial.print(':');
-    Serial.print(Secondi); // print the second
+    Serial.print(Seconds); // print the second
     Serial.print(':');
     Serial.println(CSec); // print the second
 
@@ -194,7 +194,7 @@ void LeggiEdecodificaTempo() {
     CalculateArray();
    
     //how many to the minute end ?
-    int DaPerdere = 600 - ((Secondi * 10) + CSec) ;
+    int DaPerdere = 600 - ((Seconds * 10) + CSec) ;
     DaPerdere = (DaPerdere * 100) - (age + (millis() - t));
     if(DaPerdere > 0) {
       
@@ -229,7 +229,7 @@ void CalculateArray() {
   ArrayImpulses[20] = 2;
 
   //calcola i bits per il minuto
-  TmpIn = Bin2Bcd(Minuti);
+  TmpIn = Bin2Bcd(Minute);
   for (n=21;n<28;n++) {
     Tmp = TmpIn & 1;
     ArrayImpulses[n] = Tmp + 1;
@@ -243,7 +243,7 @@ void CalculateArray() {
 
   //calcola i bits per le ore
   ParityCount = 0;
-  TmpIn = Bin2Bcd(Ore);
+  TmpIn = Bin2Bcd(Hour);
   for (n=29;n<35;n++) {
     Tmp = TmpIn & 1;
     ArrayImpulses[n] = Tmp + 1;
@@ -256,7 +256,7 @@ void CalculateArray() {
     ArrayImpulses[35] = 2;
    ParityCount = 0;
   //calcola i bits per il giorno
-  TmpIn = Bin2Bcd(Giorno);
+  TmpIn = Bin2Bcd(Day);
   for (n=36;n<42;n++) {
     Tmp = TmpIn & 1;
     ArrayImpulses[n] = Tmp + 1;
@@ -272,7 +272,7 @@ void CalculateArray() {
     TmpIn >>= 1;
   }
   //calcola i bits per il mese
-  TmpIn = Bin2Bcd(Mese);
+  TmpIn = Bin2Bcd(Month);
   for (n=45;n<50;n++) {
     Tmp = TmpIn & 1;
     ArrayImpulses[n] = Tmp + 1;
@@ -280,7 +280,7 @@ void CalculateArray() {
     TmpIn >>= 1;
   }
   //calcola i bits per l'anno
-  TmpIn = Bin2Bcd(Anno - 2000);   //a noi interesa solo l'anno con ... il millenniumbug !
+  TmpIn = Bin2Bcd(Year - 2000);   //a noi interesa solo l'anno con ... il millenniumbug !
   for (n=50;n<58;n++) {
     Tmp = TmpIn & 1;
     ArrayImpulses[n] = Tmp + 1;

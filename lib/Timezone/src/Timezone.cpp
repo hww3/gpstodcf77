@@ -11,10 +11,6 @@
 
 #include "Timezone.h"
 
-#ifdef __AVR__
-	#include <avr/eeprom.h>
-#endif
-
 /*----------------------------------------------------------------------*
  * Create a Timezone object from the given time change rules.           *
  *----------------------------------------------------------------------*/
@@ -24,7 +20,6 @@ Timezone::Timezone(TimeChangeRule dstStart, TimeChangeRule stdStart)
     _std = stdStart;
 }
 
-#ifdef __AVR__
 /*----------------------------------------------------------------------*
  * Create a Timezone object from time change rules stored in EEPROM     *
  * at the given address.                                                *
@@ -33,7 +28,6 @@ Timezone::Timezone(int address)
 {
     readRules(address);
 }
-#endif
 
 /*----------------------------------------------------------------------*
  * Convert the given UTC time to local time, standard or                *
@@ -185,7 +179,6 @@ time_t Timezone::toTime_t(TimeChangeRule r, int yr)
     return t;
 }
 
-#ifdef __AVR__
 /*----------------------------------------------------------------------*
  * Read the daylight and standard time rules from EEPROM at				*
  * the given address.                                                   *
@@ -207,5 +200,3 @@ void Timezone::writeRules(int address)
     address += sizeof(_dst);
     eeprom_write_block((void *) &_std, (void *) address, sizeof(_std));
 }
-
-#endif
