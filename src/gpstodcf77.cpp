@@ -79,14 +79,16 @@ void setup()
 
   // flash the led a few times
   pinMode(LedPin, OUTPUT);
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 5; i++) {
     delay(500);
     digitalWrite(LedPin, HIGH);
     delay(500);
     digitalWrite(LedPin, LOW);
   }
 
-  //gestione inpulsi DCF
+  Serial.println();
+  Serial.println("DCF77 emulator INIT");
+
   Timer1.initialize(100000);
   Timer1.attachInterrupt(DcfOut, 100000);
 

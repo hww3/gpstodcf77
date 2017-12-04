@@ -1,3 +1,4 @@
 .pioenvs
 .piolibdeps
 .idea
+cmake-build-debug
